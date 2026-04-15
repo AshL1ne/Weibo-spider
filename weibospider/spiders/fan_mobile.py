@@ -27,7 +27,7 @@ class FanMobileSpider(Spider):
             self.user_ids = user_ids.split(',')
         else:
             self.user_ids = SEED_USERS["normal"] + SEED_USERS["malicious"]
-        self.max_pages = int(max_pages) if max_pages else CRAWL_PAGES.get("seed_fan", 2)
+        self.max_pages = int(max_pages) if max_pages else CRAWL_PAGES.get("seed_fan", 1)
         self.node_level = int(level)
         random.shuffle(self.user_ids)
         self.batch_size = CRAWL_DELAY["batch_size"]
@@ -116,9 +116,9 @@ class FanMobileSpider(Spider):
                     user_info = user_card.get('user', {})
                     if user_info:
                         has_valid_data = True
-                        # 1. 输出与user_mobile.py完全一致的用户信息item
-                        user_item = self.parse_user_data(user_info)
-                        yield user_item
+                        # # 1. 输出与user_mobile.py完全一致的用户信息item
+                        # user_item = self.parse_user_data(user_info)
+                        # yield user_item
                         # 2. 输出原有的粉丝关系item，内部fan_info与用户字段对齐
                         relation_item = self.parse_fan_relation(user_id, user_info, node_level)
                         yield relation_item
@@ -130,6 +130,9 @@ class FanMobileSpider(Spider):
             # 核心分页逻辑
             cardlist_info = data.get('data', {}).get('cardlistInfo', {})
             next_since_id = cardlist_info.get('since_id')
+            # # 调试，检测接口是否返回since_id
+            # self.logger.debug(f"用户 {user_id} 第 {current_page} 页 cardlistInfo: {cardlist_info}, since_id: {next_since_id}")
+
             if current_page < max_pages and next_since_id:
                 next_page = current_page + 1
                 next_url = f"https://m.weibo.cn/api/container/getIndex?containerid={response.meta['containerid']}&since_id={next_since_id}"

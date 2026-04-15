@@ -137,9 +137,9 @@ class FollowMobileSpider(Spider):
                     user_info = user_card.get('user', {})
                     if user_info:
                         has_valid_data = True
-                        # 1. 输出与user_mobile.py完全一致的用户信息item
-                        user_item = self.parse_user_data(user_info)
-                        yield user_item
+                        # # 1. 输出与user_mobile.py完全一致的用户信息item
+                        # user_item = self.parse_user_data(user_info)
+                        # yield user_item
                         # 2. 输出原有的关注关系item，内部follow_info与用户字段对齐
                         relation_item = self.parse_follow_relation(user_id, user_info, node_level)
                         yield relation_item
@@ -153,6 +153,10 @@ class FollowMobileSpider(Spider):
             # 获取下一页since_id（微博移动端分页专用参数）
             cardlist_info = data.get('data', {}).get('cardlistInfo', {})
             next_since_id = cardlist_info.get('since_id')
+
+            # # 调试，检测接口是否返回since_id
+            # self.logger.debug(f"用户 {user_id} 第 {current_page} 页 cardlistInfo: {cardlist_info}, since_id: {next_since_id}")
+
             # 未到最大页数+有下一页ID，继续采集
             if current_page < max_pages and next_since_id:
                 next_page = current_page + 1

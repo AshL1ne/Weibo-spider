@@ -185,11 +185,11 @@ class TweetMobileSpider(Spider):
                 )
             else:
                 self.logger.info(f"用户 {user_id} 博文采集完成，共采集 {current_page} 页")
-                # 仅在全量采集完成后生成行为摘要，避免重复/错误计算
-                total_post_times = post_times + response.meta.get('post_times', [])
-                total_count = len(post_times) + response.meta.get('total_tweet_count', 0)
-                if total_post_times and total_count > 1:
-                    yield self.generate_behavior_summary(user_id, total_post_times, total_count)
+                # # 仅在全量采集完成后生成行为摘要，避免重复/错误计算
+                # total_post_times = post_times + response.meta.get('post_times', [])
+                # total_count = len(post_times) + response.meta.get('total_tweet_count', 0)
+                # if total_post_times and total_count > 1:
+                #     yield self.generate_behavior_summary(user_id, total_post_times, total_count)
 
 
 
@@ -198,41 +198,41 @@ class TweetMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析微博列表失败: {e}")
 
-    def generate_behavior_summary(self, user_id, post_times, tweet_count):
-        """
-        生成用户发文行为特征摘要（毕设核心：用于用户画像与GCN节点特征）
-        """
-        hours = []
-        valid_dates = []
-        for time_str in post_times:
-            try:
-                dt = datetime.strptime(time_str, '%a %b %d %H:%M:%S %z %Y')
-                hours.append(dt.hour)
-                valid_dates.append(dt.date())
-            except:
-                continue
-        if not valid_dates:
-            return None
-
-        hour_distribution = defaultdict(int)
-        for hour in hours:
-            hour_distribution[hour] += 1
-        active_hours = sorted(hour_distribution.items(), key=lambda x: x[1], reverse=True)[:3]
-
-        # 修正日均发文数：按实际采集的时间跨度计算，而非固定180天
-        date_span = (max(valid_dates) - min(valid_dates)).days + 1
-        avg_tweets_per_day = round(tweet_count / date_span, 4) if date_span > 0 else 0
-
-        return {
-            'user_id': user_id,
-            'data_type': 'behavior_summary',
-            'tweet_count': tweet_count,
-            'active_hours': [{'hour': h, 'count': c} for h, c in active_hours],
-            'avg_tweets_per_day': avg_tweets_per_day,
-            'date_span_days': date_span,
-            # 'crawl_time': int(time.time()),
-            # 'spider_name': self.name,
-        }
+    # def generate_behavior_summary(self, user_id, post_times, tweet_count):
+    #     """
+    #     生成用户发文行为特征摘要（毕设核心：用于用户画像与GCN节点特征）
+    #     """
+    #     hours = []
+    #     valid_dates = []
+    #     for time_str in post_times:
+    #         try:
+    #             dt = datetime.strptime(time_str, '%a %b %d %H:%M:%S %z %Y')
+    #             hours.append(dt.hour)
+    #             valid_dates.append(dt.date())
+    #         except:
+    #             continue
+    #     if not valid_dates:
+    #         return None
+    #
+    #     hour_distribution = defaultdict(int)
+    #     for hour in hours:
+    #         hour_distribution[hour] += 1
+    #     active_hours = sorted(hour_distribution.items(), key=lambda x: x[1], reverse=True)[:3]
+    #
+    #     # 修正日均发文数：按实际采集的时间跨度计算，而非固定180天
+    #     date_span = (max(valid_dates) - min(valid_dates)).days + 1
+    #     avg_tweets_per_day = round(tweet_count / date_span, 4) if date_span > 0 else 0
+    #
+    #     return {
+    #         'user_id': user_id,
+    #         'data_type': 'behavior_summary',
+    #         'tweet_count': tweet_count,
+    #         'active_hours': [{'hour': h, 'count': c} for h, c in active_hours],
+    #         'avg_tweets_per_day': avg_tweets_per_day,
+    #         'date_span_days': date_span,
+    #         # 'crawl_time': int(time.time()),
+    #         # 'spider_name': self.name,
+    #     }
 
     # 新增长文本解析方法
     def parse_long_tweet(self, response):
