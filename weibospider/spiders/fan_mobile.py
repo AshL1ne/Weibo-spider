@@ -17,18 +17,18 @@ from .seed_user_config import CRAWL_PAGES, CRAWL_DELAY, SEED_USERS
 class FanMobileSpider(Spider):
     """
     移动端粉丝关系采集
-    命令行示例：scrapy crawl fan_mobile -a user_ids=123456,789012 -a max_pages=2 -a level=1
+    命令行示例：scrapy crawl fan_mobile -a user_ids=123456,789012 -a max_pages=2
     """
     name = "fan_mobile_spider"
 
-    def __init__(self, user_ids=None, max_pages=None, level=0, **kwargs):
+    def __init__(self, user_ids=None, max_pages=None, **kwargs):
         super().__init__(**kwargs)
         if user_ids:
             self.user_ids = user_ids.split(',')
         else:
             self.user_ids = SEED_USERS["normal"] + SEED_USERS["malicious"]
         self.max_pages = int(max_pages) if max_pages else CRAWL_PAGES.get("seed_fan", 1)
-        self.node_level = int(level)
+        # self.node_level = int(level)
         random.shuffle(self.user_ids)
         self.batch_size = CRAWL_DELAY["batch_size"]
         self.delay_min = CRAWL_DELAY["min"]
@@ -49,7 +49,7 @@ class FanMobileSpider(Spider):
                         'containerid': containerid,
                         'current_page': 1,
                         'max_pages': self.max_pages,
-                        'node_level': self.node_level
+                        # 'node_level': self.node_level
                     },
                     headers=self.get_mobile_headers()
                 )
@@ -100,8 +100,8 @@ class FanMobileSpider(Spider):
             user_id = response.meta['user_id']
             current_page = response.meta['current_page']
             max_pages = response.meta['max_pages']
-            node_level = response.meta['node_level']
-            self.logger.info(f"正在采集用户 {user_id} 第 {current_page} 页粉丝列表，节点层级：{node_level}")
+            # node_level = response.meta['node_level']
+            self.logger.info(f"正在采集用户 {user_id} 第 {current_page} 页粉丝列表")
 
             if data.get('ok') != 1:
                 self.logger.warning(f"用户 {user_id} 第 {current_page} 页粉丝列表获取失败，终止分页")
@@ -120,7 +120,7 @@ class FanMobileSpider(Spider):
                         # user_item = self.parse_user_data(user_info)
                         # yield user_item
                         # 2. 输出原有的粉丝关系item，内部fan_info与用户字段对齐
-                        relation_item = self.parse_fan_relation(user_id, user_info, node_level)
+                        relation_item = self.parse_fan_relation(user_id, user_info)
                         yield relation_item
 
             if not has_valid_data:
@@ -145,7 +145,7 @@ class FanMobileSpider(Spider):
                         'containerid': response.meta['containerid'],
                         'current_page': next_page,
                         'max_pages': max_pages,
-                        'node_level': node_level
+                        # 'node_level': node_level
                     },
                     headers=self.get_mobile_headers()
                 )
@@ -156,7 +156,7 @@ class FanMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析粉丝列表失败: {str(e)}")
 
-    def parse_fan_relation(self, followed_id, user_data, node_level):
+    def parse_fan_relation(self, followed_id, user_data):
         """
         解析粉丝关系，fan_info字段与user_mobile.py用户结构完全对齐
         """
@@ -166,8 +166,8 @@ class FanMobileSpider(Spider):
             '_id': f"{followed_id}_{user_data.get('id', '')}",
             'followed_id': followed_id,
             'fan_id': str(user_data.get('id', '')),
-            'node_level': node_level,
-            'source_user_type': 'seed' if node_level == 0 else 'neighbor',
+            # 'node_level': node_level,
+            # 'source_user_type': 'seed' if node_level == 0 else 'neighbor',
             'fan_info': full_user_info,  # 与user_mobile完全一致的用户信息
             'relation_type': 'fan',
             # 'crawl_time': int(time.time()),

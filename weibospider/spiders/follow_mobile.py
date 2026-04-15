@@ -19,11 +19,11 @@ class FollowMobileSpider(Spider):
     """
     移动端关注关系采集
     支持命令行传入用户ID列表，默认使用种子用户
-    命令行示例：scrapy crawl follow_mobile -a user_ids=123456,789012 -a max_pages=2 -a level=1
+    命令行示例：scrapy crawl follow_mobile -a user_ids=123456,789012 -a max_pages=2
     """
     name = "follow_mobile_spider"
 
-    def __init__(self, user_ids=None, max_pages=None, level=0, **kwargs):
+    def __init__(self, user_ids=None, max_pages=None, **kwargs):
         super().__init__(**kwargs)
         # 初始化用户列表：优先命令行传入，否则使用种子正常用户
         if user_ids:
@@ -32,8 +32,8 @@ class FollowMobileSpider(Spider):
             self.user_ids = SEED_USERS["normal"] + SEED_USERS["malicious"]
         # 初始化采集页数：优先命令行传入，否则使用配置
         self.max_pages = int(max_pages) if max_pages else CRAWL_PAGES["seed_follow"]
-        # 节点层级标签：0=种子用户，1=一阶邻居，2=二阶邻居
-        self.node_level = int(level)
+        # # 节点层级标签：0=种子用户，1=一阶邻居，2=二阶邻居
+        # self.node_level = int(level)
         # 随机打乱用户顺序，避免模式化
         random.shuffle(self.user_ids)
         self.batch_size = CRAWL_DELAY["batch_size"]
@@ -62,7 +62,7 @@ class FollowMobileSpider(Spider):
                         'containerid': containerid,
                         'current_page': 1,
                         'max_pages': self.max_pages,
-                        'node_level': self.node_level
+                        # 'node_level': self.node_level
                     },
                     headers=self.get_mobile_headers()
                 )
@@ -120,8 +120,8 @@ class FollowMobileSpider(Spider):
             user_id = response.meta['user_id']
             current_page = response.meta['current_page']
             max_pages = response.meta['max_pages']
-            node_level = response.meta['node_level']
-            self.logger.info(f"正在采集用户 {user_id} 第 {current_page} 页关注列表，节点层级：{node_level}")
+            # node_level = response.meta['node_level']
+            self.logger.info(f"正在采集用户 {user_id} 第 {current_page} 页关注列表")
 
             # 请求失败处理
             if data.get('ok') != 1:
@@ -141,7 +141,7 @@ class FollowMobileSpider(Spider):
                         # user_item = self.parse_user_data(user_info)
                         # yield user_item
                         # 2. 输出原有的关注关系item，内部follow_info与用户字段对齐
-                        relation_item = self.parse_follow_relation(user_id, user_info, node_level)
+                        relation_item = self.parse_follow_relation(user_id, user_info)
                         yield relation_item
 
             # 无数据时终止分页
@@ -172,7 +172,7 @@ class FollowMobileSpider(Spider):
                         'containerid': response.meta['containerid'],
                         'current_page': next_page,
                         'max_pages': max_pages,
-                        'node_level': node_level
+                        # 'node_level': node_level
                     },
                     headers=self.get_mobile_headers()
                 )
@@ -183,7 +183,7 @@ class FollowMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析关注列表失败: {str(e)}")
 
-    def parse_follow_relation(self, fan_id, user_data, node_level):
+    def parse_follow_relation(self, fan_id, user_data):
         """
         解析关注关系，follow_info字段与user_mobile.py用户结构完全对齐
         """
@@ -193,8 +193,8 @@ class FollowMobileSpider(Spider):
             '_id': f"{fan_id}_{user_data.get('id', '')}",
             'fan_id': fan_id,
             'follow_id': str(user_data.get('id', '')),
-            'node_level': node_level,
-            'source_user_type': 'seed' if node_level == 0 else 'neighbor',
+            # 'node_level': node_level,
+            # 'source_user_type': 'seed' if node_level == 0 else 'neighbor',
             'follow_info': full_user_info,  # 与user_mobile完全一致的用户信息
             'relation_type': 'follow',
             # 'crawl_time': int(time.time()),

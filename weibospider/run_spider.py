@@ -58,6 +58,23 @@ if __name__ == '__main__':
         #'fan_mobile_pagination_test': FanMobilePaginationTestSpider,  # 测试移动端分页请求可行性
 
     }
-    process.crawl(mode_to_spider[mode])
+
+    # ========== [MODIFY] 支持 user_ids 参数文件 ==========
+    user_ids = None
+    extra_kwargs = {}
+    if len(sys.argv) > 2:
+        user_id_file = sys.argv[2]
+        # 判断是不是一个存在的文本文件
+        if os.path.isfile(user_id_file):
+            with open(user_id_file, "r", encoding='utf-8') as f:
+                # 去掉空行并 strip
+                user_ids = ','.join([line.strip() for line in f if line.strip()])
+            extra_kwargs['user_ids'] = user_ids
+        else:
+            # 如果直接给的是逗号分隔的 user_ids 字符串
+            user_ids = sys.argv[2]
+            extra_kwargs['user_ids'] = user_ids
+
+    process.crawl(mode_to_spider[mode], **extra_kwargs)
     # the script will block here until the crawling is finished
     process.start()
