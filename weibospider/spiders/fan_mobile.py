@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-移动端粉丝关系采集爬虫
-【毕设优化版】支持since_id分页、层级采集、批量用户ID输入
-基于移动端API，避免PC端反爬机制
-【已优化】用户信息与user_mobile.py完全对齐
-"""
+
+#支持since_id分页、层级采集、批量用户ID输入
+
+
 import json
 import time
 import random
@@ -15,10 +13,7 @@ from .seed_user_config import CRAWL_PAGES, CRAWL_DELAY, SEED_USERS
 
 
 class FanMobileSpider(Spider):
-    """
-    移动端粉丝关系采集
-    命令行示例：scrapy crawl fan_mobile -a user_ids=123456,789012 -a max_pages=2
-    """
+
     name = "fan_mobile_spider"
 
     def __init__(self, user_ids=None, max_pages=None, **kwargs):
@@ -65,10 +60,7 @@ class FanMobileSpider(Spider):
         }
 
     def parse_user_data(self, data, user_type='unknown'):
-        """
-        【与user_mobile.py完全一致的用户信息解析逻辑】
-        保证用户字段100%对齐
-        """
+
         item = {
             '_id': str(data.get('id', '')),
             'user_type': user_type,
@@ -83,10 +75,7 @@ class FanMobileSpider(Spider):
             # 'location': data.get('location', ''),
             'mbrank': data.get('mbrank', 0),
             'mbtype': data.get('mbtype', 0),
-            # 'created_at': data.get('created_at', ''),
-            # 'crawl_time': int(time.time()),
-            # 'spider_name': self.name,
-            # 'data_source': 'mobile_weibo',
+
         }
 
         if data.get('verified'):
@@ -145,7 +134,6 @@ class FanMobileSpider(Spider):
                         'containerid': response.meta['containerid'],
                         'current_page': next_page,
                         'max_pages': max_pages,
-                        # 'node_level': node_level
                     },
                     headers=self.get_mobile_headers()
                 )
@@ -157,10 +145,7 @@ class FanMobileSpider(Spider):
             self.logger.error(f"解析粉丝列表失败: {str(e)}")
 
     def parse_fan_relation(self, followed_id, user_data):
-        """
-        解析粉丝关系，fan_info字段与user_mobile.py用户结构完全对齐
-        """
-        # 复用统一的用户解析逻辑，保证字段100%一致
+
         full_user_info = self.parse_user_data(user_data)
         item = {
             '_id': f"{followed_id}_{user_data.get('id', '')}",
@@ -170,8 +155,6 @@ class FanMobileSpider(Spider):
             # 'source_user_type': 'seed' if node_level == 0 else 'neighbor',
             'fan_info': full_user_info,  # 与user_mobile完全一致的用户信息
             'relation_type': 'fan',
-            # 'crawl_time': int(time.time()),
-            # 'spider_name': self.name,
-            # 'data_source': 'mobile_weibo',
+
         }
         return item

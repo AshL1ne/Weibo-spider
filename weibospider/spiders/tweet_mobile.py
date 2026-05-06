@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-移动端微博数据采集
-【毕设优化版】支持时间范围筛选、分页采集、批量用户ID输入，完善发文行为特征
-专门为毕设"基于用户画像的恶意行为检测与可视分析"优化
-"""
+
+# 支持时间范围筛选、分页采集、批量用户ID输入，完善发文行为特征
+
+
 # import datetime
 import json
 import time
@@ -17,10 +16,7 @@ from .seed_user_config import CRAWL_PAGES, CRAWL_DELAY, SEED_USERS, TWEET_START_
 
 
 class TweetMobileSpider(Spider):
-    """
-    移动端微博数据采集
-    命令行示例：scrapy crawl tweet_mobile -a user_ids=123456,789012 -a max_pages=10
-    """
+
     name = "tweet_mobile_spider"
 
     def __init__(self, user_ids=None, max_pages=None, **kwargs):
@@ -40,9 +36,7 @@ class TweetMobileSpider(Spider):
         self.delay_max = CRAWL_DELAY["max"]
 
     def start_requests(self):
-        """
-        爬虫入口
-        """
+
         for i in range(0, len(self.user_ids), self.batch_size):
             batch = self.user_ids[i:i + self.batch_size]
             for user_id in batch:
@@ -69,10 +63,9 @@ class TweetMobileSpider(Spider):
             'X-Requested-With': 'XMLHttpRequest',
         }
 
+    # 解析用户容器信息，获取微博列表容器ID，并发起微博列表请求
     def parse_user_container(self, response):
-        """
-        解析用户容器信息，获取微博列表容器ID
-        """
+
         try:
             data = json.loads(response.text)
             user_id = response.meta['user_id']
@@ -108,10 +101,9 @@ class TweetMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析用户容器失败: {e}")
 
+    # 解析微博列表，核心分页逻辑，时间范围过滤
     def parse_weibo_list(self, response):
-        """
-        解析微博列表，核心分页逻辑，时间范围过滤
-        """
+
         try:
             data = json.loads(response.text)
             user_id = response.meta['user_id']
@@ -185,12 +177,6 @@ class TweetMobileSpider(Spider):
                 )
             else:
                 self.logger.info(f"用户 {user_id} 博文采集完成，共采集 {current_page} 页")
-                # # 仅在全量采集完成后生成行为摘要，避免重复/错误计算
-                # total_post_times = post_times + response.meta.get('post_times', [])
-                # total_count = len(post_times) + response.meta.get('total_tweet_count', 0)
-                # if total_post_times and total_count > 1:
-                #     yield self.generate_behavior_summary(user_id, total_post_times, total_count)
-
 
 
         except json.JSONDecodeError:
@@ -198,41 +184,7 @@ class TweetMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析微博列表失败: {e}")
 
-    # def generate_behavior_summary(self, user_id, post_times, tweet_count):
-    #     """
-    #     生成用户发文行为特征摘要（毕设核心：用于用户画像与GCN节点特征）
-    #     """
-    #     hours = []
-    #     valid_dates = []
-    #     for time_str in post_times:
-    #         try:
-    #             dt = datetime.strptime(time_str, '%a %b %d %H:%M:%S %z %Y')
-    #             hours.append(dt.hour)
-    #             valid_dates.append(dt.date())
-    #         except:
-    #             continue
-    #     if not valid_dates:
-    #         return None
-    #
-    #     hour_distribution = defaultdict(int)
-    #     for hour in hours:
-    #         hour_distribution[hour] += 1
-    #     active_hours = sorted(hour_distribution.items(), key=lambda x: x[1], reverse=True)[:3]
-    #
-    #     # 修正日均发文数：按实际采集的时间跨度计算，而非固定180天
-    #     date_span = (max(valid_dates) - min(valid_dates)).days + 1
-    #     avg_tweets_per_day = round(tweet_count / date_span, 4) if date_span > 0 else 0
-    #
-    #     return {
-    #         'user_id': user_id,
-    #         'data_type': 'behavior_summary',
-    #         'tweet_count': tweet_count,
-    #         'active_hours': [{'hour': h, 'count': c} for h, c in active_hours],
-    #         'avg_tweets_per_day': avg_tweets_per_day,
-    #         'date_span_days': date_span,
-    #         # 'crawl_time': int(time.time()),
-    #         # 'spider_name': self.name,
-    #     }
+
 
     # 新增长文本解析方法
     def parse_long_tweet(self, response):
@@ -247,9 +199,7 @@ class TweetMobileSpider(Spider):
             yield response.meta['item']
 
     def parse_weibo_info(self, mblog, user_info):
-        """
-        解析单条微博信息，完善特征字段
-        """
+
         item = {
             '_id': str(mblog.get('id', '')),
             # 'mblogid': mblog.get('mblogid', ''),
@@ -264,33 +214,8 @@ class TweetMobileSpider(Spider):
 
              'is_long_text': mblog.get('isLongText', False),
 
-            # 'crawl_time': int(time.time()),
-            # 'spider_name': self.name,
-            # 'data_source': 'mobile_weibo',
-        }
-        # 用户信息
-        # 没必要，上面有user_id了
-        # if user_info:
-        #     item['user_info'] = {
-        #         '_id': str(user_info.get('id', '')),
-        #         'nick_name': user_info.get('screen_name', ''),
-        #         'verified': user_info.get('verified', False),
-        #         'followers_count': user_info.get('followers_count', 0),
-        #         'friends_count': user_info.get('friends_count', 0),
-        #         'statuses_count': user_info.get('statuses_count', 0),
-        #     }
 
-        #     不考虑收集
-        # # 图片信息
-        # pics = mblog.get('pics', [])
-        # if pics:
-        #     item['pic_urls'] = [pic.get('url', '') for pic in pics if pic.get('url')]
-        #     item['pic_num'] = len(item['pic_urls'])
-        # # 视频信息
-        # page_info = mblog.get('page_info', {})
-        # if page_info and page_info.get('type') == 'video':
-        #     item['video'] = page_info.get('media_info', {}).get('stream_url', '')
-        #     item['video_online_numbers'] = page_info.get('media_info', {}).get('online_users_number', 0)
+        }
 
         # 转发微博信息
         retweeted = mblog.get('retweeted_status')

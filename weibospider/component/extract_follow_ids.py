@@ -6,7 +6,7 @@ from datetime import datetime
 
 def main():
     # 自动找到所有 follow_mobile_spider_*.jsonl 文件
-    jsonl_files = glob.glob("../output/follow_mobile_spider_*.jsonl")
+    jsonl_files = glob.glob("../../output/follow_mobile_spider_*.jsonl")
     follow_ids = set()
 
     for file in jsonl_files:

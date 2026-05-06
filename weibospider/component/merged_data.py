@@ -2,8 +2,8 @@ import os
 import glob
 
 # 设置输出目录
-output_dir = "../output/"  # 替换为你的实际路径
-merged_file = "../output/merged_fan_fan.jsonl"
+output_dir = "../../output"
+merged_file = "../../output/merged_tweet.jsonl"
 
 # 获取所有 .jsonl 文件，并按文件名中的时间戳排序
 jsonl_files = sorted(

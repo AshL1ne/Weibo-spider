@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""
+python run_spider.py user_mobile
+python run_spider.py fan_mobile
+python run_spider.py follow_mobile
+python run_spider.py tweet_mobile
+"""
+
 BOT_NAME = 'spider'
 
 SPIDER_MODULES = ['spiders']
@@ -31,7 +38,7 @@ DEFAULT_REQUEST_HEADERS = {
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
     'scrapy.downloadermiddlewares.redirect.RedirectMiddleware': None,
-    'middlewares.IPProxyMiddleware': 100,
+    # 'middlewares.IPProxyMiddleware': 100,  # 已无用，可删除
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 101,
 }
 

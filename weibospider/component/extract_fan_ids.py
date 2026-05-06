@@ -6,8 +6,9 @@ from datetime import datetime
 
 def main():
     # 自动找到所有 fan_mobile_spider_*.jsonl 文件
-    jsonl_files = glob.glob("../output/fan_mobile_spider_*.jsonl")
-    # jsonl_files = glob.glob("../output/fan_mobile_spider_20260415_182250.jsonl")
+    jsonl_files = glob.glob("../../output/fan_mobile_spider_*.jsonl")
+    # jsonl_files = glob.glob("../../output/fan_fan_user/merged_fan_fan.jsonl")
+    # jsonl_files = glob.glob("../../output/fan_mobile_spider_20260415_182250.jsonl")
     fan_ids = set()
 
     # 逐文件处理

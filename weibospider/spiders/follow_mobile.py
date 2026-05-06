@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-移动端关注关系采集爬虫
-【毕设优化版】支持since_id分页、层级采集、批量用户ID输入
-基于移动端API，避免PC端反爬机制
-【已优化】用户信息与user_mobile.py完全对齐
-"""
+
+# 支持since_id分页、层级采集、批量用户ID输入
+
 import json
 import time
 import random
@@ -16,11 +13,7 @@ from .seed_user_config import CRAWL_PAGES, CRAWL_DELAY, SEED_USERS
 
 
 class FollowMobileSpider(Spider):
-    """
-    移动端关注关系采集
-    支持命令行传入用户ID列表，默认使用种子用户
-    命令行示例：scrapy crawl follow_mobile -a user_ids=123456,789012 -a max_pages=2
-    """
+
     name = "follow_mobile_spider"
 
     def __init__(self, user_ids=None, max_pages=None, **kwargs):
@@ -41,9 +34,7 @@ class FollowMobileSpider(Spider):
         self.delay_max = CRAWL_DELAY["max"]
 
     def start_requests(self):
-        """
-        爬虫入口
-        """
+
         # 分批处理用户，降低风控风险
         for i in range(0, len(self.user_ids), self.batch_size):
             batch = self.user_ids[i:i + self.batch_size]
@@ -67,10 +58,9 @@ class FollowMobileSpider(Spider):
                     headers=self.get_mobile_headers()
                 )
 
+    # 获取移动端标准请求头
     def get_mobile_headers(self):
-        """
-        获取移动端标准请求头，与原有体系完全兼容
-        """
+
         return {
             'Accept': 'application/json, text/plain, */*',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -80,11 +70,9 @@ class FollowMobileSpider(Spider):
             'X-Requested-With': 'XMLHttpRequest',
         }
 
+    # 解析用户数据，对齐user_mobile.py的用户信息结构
     def parse_user_data(self, data, user_type='unknown'):
-        """
-        【与user_mobile.py完全一致的用户信息解析逻辑】
-        保证用户字段100%对齐
-        """
+
         item = {
             '_id': str(data.get('id', '')),
             'user_type': user_type,
@@ -99,10 +87,7 @@ class FollowMobileSpider(Spider):
             # 'location': data.get('location', ''),
             'mbrank': data.get('mbrank', 0),
             'mbtype': data.get('mbtype', 0),
-            # 'created_at': data.get('created_at', ''),
-            # 'crawl_time': int(time.time()),
-            # 'spider_name': self.name,
-            # 'data_source': 'mobile_weibo',
+
         }
 
         # 认证就行
@@ -111,16 +96,14 @@ class FollowMobileSpider(Spider):
         #     # item['verified_reason'] = data.get('verified_reason', '')
         return item
 
+    # 解析关注列表，核心分页逻辑
     def parse_follow_list(self, response):
-        """
-        解析关注列表，核心分页逻辑
-        """
+
         try:
             data = json.loads(response.text)
             user_id = response.meta['user_id']
             current_page = response.meta['current_page']
             max_pages = response.meta['max_pages']
-            # node_level = response.meta['node_level']
             self.logger.info(f"正在采集用户 {user_id} 第 {current_page} 页关注列表")
 
             # 请求失败处理
@@ -149,7 +132,6 @@ class FollowMobileSpider(Spider):
                 self.logger.info(f"用户 {user_id} 第 {current_page} 页无有效数据，分页结束")
                 return
 
-            # ===================== 核心分页逻辑（已验证可行性）=====================
             # 获取下一页since_id（微博移动端分页专用参数）
             cardlist_info = data.get('data', {}).get('cardlistInfo', {})
             next_since_id = cardlist_info.get('since_id')
@@ -183,10 +165,9 @@ class FollowMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析关注列表失败: {str(e)}")
 
+
     def parse_follow_relation(self, fan_id, user_data):
-        """
-        解析关注关系，follow_info字段与user_mobile.py用户结构完全对齐
-        """
+
         # 复用统一的用户解析逻辑，保证字段100%一致
         full_user_info = self.parse_user_data(user_data)
         item = {

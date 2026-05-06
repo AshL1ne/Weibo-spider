@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-毕设采集统一配置文件
+统一配置
 集中管理种子用户、采集页数、时间范围等参数
 """
 import datetime
 from datetime import timezone
 
-# ===================== 核心种子用户配置 =====================
-# 0阶种子用户：
+# 种子用户id
+# 种子用户：
 SEED_USERS = {
     # 正常用户
     "normal": [
@@ -58,7 +58,7 @@ SEED_USERS = {
     ]
 }
 
-# ===================== 采集页数配置 =====================
+# 采集页数配置
 CRAWL_PAGES = {
     "seed_follow": 1,        # 种子用户关注列表采集页数
     "neighbor_follow": 1,    # 一层邻居关注列表采集页数
@@ -68,7 +68,7 @@ CRAWL_PAGES = {
     "tweet_comment": 2,      # 单条博文评论最大采集页数
 }
 
-# ===================== 时间范围配置 =====================
+# 时间配置
 # 博文采集时间范围：默认近6个月，统一UTC时区，避免时间偏移
 TWEET_START_TIME = datetime.datetime.now(timezone.utc) - datetime.timedelta(days=180)
 TWEET_END_TIME = datetime.datetime.now(timezone.utc)
@@ -76,10 +76,10 @@ TWEET_END_TIME = datetime.datetime.now(timezone.utc)
 # ===================== 反爬配置 =====================
 CRAWL_DELAY = {
     "min": 5,    # 请求最小延迟（秒）
-    "max": 10,   # 请求最大延迟（秒）
+    "max": 10,
     "batch_size": 3,  # 每批处理用户数
 }
 
-# ===================== 数据输出配置 =====================
+# 输出
 OUTPUT_PATH = "../../output"
-USER_ID_FILE = "../output/user_id_list.txt"  # 采集到的全量用户ID存储路径
+USER_ID_FILE = "../output/user_id_list.txt"

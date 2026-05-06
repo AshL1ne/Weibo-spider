@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-移动端评论采集爬虫
-【毕设优化版】支持分页采集、批量博文ID输入，完善评论特征提取
-基于移动端API，避免PC端反爬机制
-"""
+
 import json
 import time
 import random
@@ -14,10 +10,7 @@ from .seed_user_config import CRAWL_PAGES, CRAWL_DELAY
 
 
 class CommentMobileSpider(Spider):
-    """
-    移动端评论采集
-    命令行示例：scrapy crawl comment_mobile -a tweet_ids=123456,789012 -a max_pages=3
-    """
+
     name = "comment_mobile_spider"
 
     def __init__(self, tweet_ids=None, max_pages=None, **kwargs):
@@ -35,9 +28,7 @@ class CommentMobileSpider(Spider):
         self.delay_max = CRAWL_DELAY["max"]
 
     def start_requests(self):
-        """
-        爬虫入口
-        """
+
         for i in range(0, len(self.tweet_ids), self.batch_size):
             batch = self.tweet_ids[i:i + self.batch_size]
             for tweet_id in batch:
@@ -64,10 +55,9 @@ class CommentMobileSpider(Spider):
             'X-Requested-With': 'XMLHttpRequest',
         }
 
+    # 解析评论列表，分页逻辑
     def parse_comment_list(self, response):
-        """
-        解析评论列表，分页逻辑
-        """
+
         try:
             data = json.loads(response.text)
             tweet_id = response.meta['tweet_id']
@@ -110,10 +100,9 @@ class CommentMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析评论列表失败: {e}")
 
+    # 解析评论数据，完善特征字段
     def parse_comment_data(self, tweet_id, comment_data):
-        """
-        解析评论数据，完善特征字段
-        """
+
         item = {
             '_id': str(comment_data.get('id', '')),
             'tweet_id': tweet_id,

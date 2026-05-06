@@ -27,7 +27,7 @@ def split_txt_to_batches(input_file, out_dir, batch_size=100):
     print(f"总共拆分为 {num_batches} 个文件，总id数：{total}")
 
 if __name__ == "__main__":
-    # 使用方法示例：python split_txt.py ../output/fan_ids_20260415_230316.txt ../output/fan_batches 100
+    # 示例：python split_txt.py ../output/fan_ids_20260415_230316.txt ../output/fan_batches 100
     import sys
     if len(sys.argv) < 3:
         print("用法: python split_txt_by_batch.py <原txt路径> <输出文件夹> [每批数量,默认100]")

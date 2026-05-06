@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-移动端用户信息采集爬虫
-【毕设优化版】支持批量用户ID输入，全量节点基础信息采集
-基于移动端API，避免PC端反爬机制
-"""
+
 import json
 import time
 import random
@@ -14,10 +10,7 @@ from .seed_user_config import SEED_USERS, CRAWL_DELAY
 
 
 class UserMobileSpider(Spider):
-    """
-    移动端用户信息采集
-    命令行示例：scrapy crawl user_mobile -a user_ids=123456,789012 -a user_type=normal
-    """
+
     name = "user_mobile_spider"
 
     def __init__(self, user_ids=None, user_type='normal', **kwargs):
@@ -45,9 +38,7 @@ class UserMobileSpider(Spider):
         self.delay_max = CRAWL_DELAY["max"]
 
     def start_requests(self):
-        """
-        爬虫入口
-        """
+
         for i in range(0, len(self.user_ids), self.batch_size):
             batch = self.user_ids[i:i + self.batch_size]
             for user_id in batch:
@@ -75,10 +66,9 @@ class UserMobileSpider(Spider):
             'X-Requested-With': 'XMLHttpRequest',
         }
 
+    # 解析用户信息，新增样本类型标注
     def parse_user_info(self, response):
-        """
-        解析用户信息，新增样本类型标注
-        """
+
         try:
             data = json.loads(response.text)
             user_id = response.meta['user_id']
@@ -97,13 +87,12 @@ class UserMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析用户信息失败: {e}")
 
+    # 析移动端用户信息，新增样本用户标签
     def parse_user_data(self, data, user_type):
-        """
-        解析移动端用户信息，新增样本标签
-        """
+
         item = {
             '_id': str(data.get('id', '')),
-            'user_type': user_type,  # 新增：用户类型标注 normal/malicious/unknown
+            'user_type': user_type,  # 用户类型标注 normal/malicious/unknown
             'nick_name': data.get('screen_name', ''),
             # 头像图片url，没必要
             # 'avatar_hd': data.get('profile_image_url', ''),
@@ -119,10 +108,7 @@ class UserMobileSpider(Spider):
             'mbtype': data.get('mbtype', 0),
             # 移动端接口不包含
             # 'created_at': data.get('created_at', ''),
-            # 没啥用
-            # 'crawl_time': int(time.time()),
-            # 'spider_name': self.name,
-            # 'data_source': 'mobile_weibo',
+
         }
         if data.get('verified'):
             item['verified_type'] = data.get('verified_type', -1)

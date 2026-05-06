@@ -4,8 +4,8 @@ import time
 import random
 
 # 直接运行即可，无参
-batch_dir = "../output/batches"  # 分割后的小文件目录
-cmd_tmpl = 'python run_spider.py fan_mobile "{path}"'
+batch_dir = "../output/fan_fan_batches/118"  # 分割后的小文件目录
+cmd_tmpl = 'python run_spider.py tweet_mobile "{path}"'
 
 # 根据实际情况调整顺序（确保按数字顺序）
 all_files = sorted(

@@ -4,11 +4,8 @@ import json
 import os.path
 import time
 
-
+# 写入json文件的pipline
 class JsonWriterPipeline(object):
-    """
-    写入json文件的pipline
-    """
 
     def __init__(self):
         self.file = None
@@ -16,18 +13,14 @@ class JsonWriterPipeline(object):
         if not os.path.exists('../output'):
             os.mkdir('../output')
 
+    # 处理item的方法，每个item都会调用一次
     def process_item(self, item, spider):
-        """
-        处理item
-        """
+
         if not self.file:
             now = datetime.datetime.now()
             file_name = f"{spider.name}_{now.strftime('%Y%m%d_%H%M%S')}.jsonl"
             self.file = open(f'../output/{file_name}', 'wt', encoding='utf-8')
 
-        # 添加统一的元数据
-        # item['crawl_time'] = int(time.time())
-        # item['spider_name'] = spider.name
 
         # 格式化输出
         line = json.dumps(dict(item), ensure_ascii=False,
