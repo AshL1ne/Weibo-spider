@@ -87,7 +87,7 @@ class UserMobileSpider(Spider):
         except Exception as e:
             self.logger.error(f"解析用户信息失败: {e}")
 
-    # 析移动端用户信息，新增样本用户标签
+    # 新增样本用户标签
     def parse_user_data(self, data, user_type):
 
         item = {

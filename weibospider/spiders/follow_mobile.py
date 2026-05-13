@@ -96,7 +96,7 @@ class FollowMobileSpider(Spider):
         #     # item['verified_reason'] = data.get('verified_reason', '')
         return item
 
-    # 解析关注列表，核心分页逻辑
+    # 解析关注列表，分页
     def parse_follow_list(self, response):
 
         try:

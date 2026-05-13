@@ -105,9 +105,11 @@ class FanMobileSpider(Spider):
                     user_info = user_card.get('user', {})
                     if user_info:
                         has_valid_data = True
+
                         # # 1. 输出与user_mobile.py完全一致的用户信息item
                         # user_item = self.parse_user_data(user_info)
                         # yield user_item
+
                         # 2. 输出原有的粉丝关系item，内部fan_info与用户字段对齐
                         relation_item = self.parse_fan_relation(user_id, user_info)
                         yield relation_item
@@ -116,7 +118,7 @@ class FanMobileSpider(Spider):
                 self.logger.info(f"用户 {user_id} 第 {current_page} 页无有效数据，分页结束")
                 return
 
-            # 核心分页逻辑
+            # 分页
             cardlist_info = data.get('data', {}).get('cardlistInfo', {})
             next_since_id = cardlist_info.get('since_id')
             # # 调试，检测接口是否返回since_id

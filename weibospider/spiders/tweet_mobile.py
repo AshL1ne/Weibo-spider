@@ -158,7 +158,7 @@ class TweetMobileSpider(Spider):
                 self.logger.info(f"用户 {user_id} 第 {current_page} 页无有效博文，终止采集")
                 return
 
-            # 分页逻辑
+            # 分页
             if current_page < max_pages:
                 next_page = current_page + 1
                 next_url = f"https://m.weibo.cn/api/container/getIndex?type=uid&value={user_id}&containerid={containerid}&page={next_page}"

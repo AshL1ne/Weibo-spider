@@ -38,7 +38,6 @@ DEFAULT_REQUEST_HEADERS = {
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
     'scrapy.downloadermiddlewares.redirect.RedirectMiddleware': None,
-    # 'middlewares.IPProxyMiddleware': 100,  # 已无用，可删除
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 101,
 }
 
@@ -47,7 +46,7 @@ ITEM_PIPELINES = {
 }
 
 
-# 根据你的电脑性能调整
+
 CONCURRENT_REQUESTS = 1  # 减少并发，避免被封IP
 DOWNLOAD_DELAY = 8  # 增加延迟
 AUTOTHROTTLE_ENABLED = True

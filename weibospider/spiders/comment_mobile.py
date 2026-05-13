@@ -76,7 +76,7 @@ class CommentMobileSpider(Spider):
                 item = self.parse_comment_data(tweet_id, comment)
                 yield item
 
-            # 分页逻辑
+            # 分页
             max_page = data.get('data', {}).get('max', 0)
             if current_page < max_pages and current_page < max_page:
                 next_page = current_page + 1

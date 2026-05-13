@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-统一配置
-集中管理种子用户、采集页数、时间范围等参数
-"""
+
 import datetime
 from datetime import timezone
 
@@ -68,8 +65,7 @@ CRAWL_PAGES = {
     "tweet_comment": 2,      # 单条博文评论最大采集页数
 }
 
-# 时间配置
-# 博文采集时间范围：默认近6个月，统一UTC时区，避免时间偏移
+# 博文采集时间范围：默认近6个月
 TWEET_START_TIME = datetime.datetime.now(timezone.utc) - datetime.timedelta(days=180)
 TWEET_END_TIME = datetime.datetime.now(timezone.utc)
 
